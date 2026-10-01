@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wie Betaalt Wat - Liquid Glass Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-highlight: rgba(255, 255, 255, 0.25);
+            --text-main: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.65);
+            --accent-cyan: #00f2fe;
+            --accent-pink: #ff0844;
+            --accent-green: #00e676;
+            --accent-orange: #ff9100;
+            --accent-purple: #7928ca;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 40px 15px;
+            background: #080c14;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #cursor-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(0, 242, 254, 0.12) 0%, rgba(247, 8, 137, 0.08) 40%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            transition: width 0.3s ease, height 0.3s ease;
+            filter: blur(30px);
+        }
+
+        .liquid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            filter: blur(90px);
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            animation: float 20s infinite alternate ease-in-out;
+        }
+
+        .blob-1 {
+            width: 450px;
+            height: 450px;
+            background: rgba(0, 242, 254, 0.2);
+            top: -100px;
+            left: -100px;
+        }
+
+        .blob-2 {
+            width: 500px;
+            height: 500px;
+            background: rgba(247, 8, 137, 0.18);
+            bottom: -150px;
+            right: -100px;
+            animation-delay: -6s;
+        }
+
+        .blob-3 {
+            width: 380px;
+            height: 380px;
+            background: rgba(121, 40, 202, 0.2);
+            top: 35%;
+            left: 25%;
+            animation-delay: -12s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(70px, 90px) scale(1.1); }
+            100% { transform: translate(-50px, 50px) scale(0.9); }
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .glass-card {
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 70%), var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 242, 254, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(40px) scale(0.96);
+            transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        h2 {
+            font-size: 1.3rem;
+            color: var(--accent-cyan);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h3 {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-top: 15px;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"], input[type="number"], input[type="date"], select {
+            background: rgba(0, 0, 0, 0.35);
+            color: var(--text-main);
+            border: 1px solid var(--glass-border);
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, select:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        input:disabled, select:disabled, button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed !important;
+            filter: grayscale(0.6);
+        }
+
+        button {
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.15), rgba(79, 172, 254, 0.35));
+            border: 1px solid var(--accent-cyan);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        button:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--accent-cyan), #0072ff);
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.6);
+            transform: translateY(-2px) scale(1.02);
+            color: #000;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, rgba(255, 82, 82, 0.15), rgba(255, 82, 82, 0.35));
+            border-color: #ff5252;
+        }
+        .btn-danger:hover:not(:disabled) {
+            background: #ff5252;
+            box-shadow: 0 0 20px rgba(255, 82, 82, 0.6);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, rgba(255, 145, 0, 0.15), rgba(255, 145, 0, 0.35));
+            border-color: var(--accent-orange);
+        }
+        .btn-warning:hover:not(:disabled) {
+            background: var(--accent-orange);
+            box-shadow: 0 0 20px rgba(255, 145, 0, 0.6);
+            color: black;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, rgba(0, 230, 118, 0.15), rgba(0, 230, 118, 0.35));
+            border-color: var(--accent-green);
+        }
+        .btn-success:hover:not(:disabled) {
+            background: var(--accent-green);
+            box-shadow: 0 0 20px rgba(0, 230, 118, 0.6);
+            color: black;
+        }
+
+        .btn-purple {
+            background: linear-gradient(135deg, rgba(121, 40, 202, 0.2), rgba(247, 8, 137, 0.3));
+            border-color: #f70889;
+        }
+        .btn-purple:hover:not(:disabled) {
+            background: linear-gradient(135deg, #7928ca, #f70889);
+            box-shadow: 0 0 20px rgba(247, 8, 137, 0.6);
+            color: white;
+        }
+
+        .checkbox-group {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--glass-border);
+            padding: 14px;
+            border-radius: 12px;
+            margin: 10px 0;
+        }
+
+        .checkbox-group label, .round-option label {
+            margin-right: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        input[type="checkbox"] {
+            accent-color: var(--accent-cyan);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .round-option {
+            background: rgba(0, 242, 254, 0.04);
+            border: 1px solid rgba(0, 242, 254, 0.2);
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            transition: background 0.3s;
+        }
+        .round-option:hover {
+            background: rgba(0, 242, 254, 0.08);
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        .glass-list-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 14px 18px;
+            border-radius: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        .glass-list-item:hover {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.01);
+        }
+
+        .transaction-grid-item {
+            display: grid;
+            grid-template-columns: 1.2fr 80px 1.2fr 60px 1.2fr;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 16px 20px;
+            border-radius: 14px;
+            margin-bottom: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .transaction-grid-item:hover {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: rgba(0, 242, 254, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.1);
+            transform: scale(1.01);
+        }
+
+        .tx-payer { font-weight: 700; color: #ffffff; text-align: left; }
+        .tx-verb { color: var(--text-muted); font-size: 13px; text-align: center; }
+        .tx-amount {
+            font-weight: 700; color: var(--accent-cyan); font-size: 16px; text-align: center;
+            background: rgba(0, 242, 254, 0.1); padding: 4px 8px; border-radius: 8px; border: 1px solid rgba(0, 242, 254, 0.2);
+        }
+        .tx-to { color: var(--text-muted); font-size: 13px; text-align: center; }
+        .tx-receiver { font-weight: 700; color: #ffffff; text-align: right; }
+
+        .item-info { flex: 1; min-width: 200px; }
+        .actions { display: flex; gap: 6px; }
+
+        .edit-panel {
+            background: rgba(255, 145, 0, 0.1);
+            border: 1px solid var(--accent-orange);
+            padding: 15px;
+            border-radius: 12px;
+            width: 100%;
+        }
+
+        .round-info {
+            font-size: 0.85rem;
+            color: var(--accent-orange);
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(255, 145, 0, 0.1);
+            border: 1px solid rgba(255, 145, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .ticket-container {
+            background: rgba(5, 8, 15, 0.85);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            font-family: 'JetBrains Mono', monospace;
+            padding: 25px;
+            color: #d1d5db;
+            border-radius: 12px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            white-space: pre-wrap;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-top: 15px;
+        }
+
+        .readonly-hide {
+            display: none !important;
+        }
+
+        @media (max-width: 600px) {
+            .transaction-grid-item {
+                grid-template-columns: 1fr 60px 1fr;
+                gap: 5px; text-align: center;
+            }
+            .tx-verb, .tx-to { display: none; }
+            .tx-payer, .tx-receiver { text-align: center; }
+        }
+
+        @media print {
+            body * { visibility: hidden; }
+            #ticketPrintArea, #ticketPrintArea * { visibility: visible; }
+            #ticketPrintArea {
+                position: absolute; left: 0; top: 0; width: 100%;
+                background: white; color: black; box-shadow: none; border: none;
+            }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="cursor-glow"></div>
+
+<div class="liquid-bg">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+</div>
+
+<div class="container">
+    <h1>Wie Betaalt Wat</h1>
+
+    <!-- 0. CLOUD SYNCRONISATIE -->
+    <div class="glass-card">
+        <h2>🔒 Cloud Synchronisatie (GitHub)</h2>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+            Voer je 6-cijferige Beheercode in, of een Kijk-code om gegevens te bekijken.
+        </p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px;">
+            <input type="text" id="cloudPin" placeholder="Pincode (6 cijfers)" maxlength="6" style="width: 180px;">
+            <button onclick="laadOfMaakCloudSessie()" class="btn-purple">Verbind / Inladen</button>
+            <button onclick="koppelCloudLos()" class="btn-warning">Werk Offline</button>
+        </div>
+
+        <!-- Creator View-only PIN control -->
+        <div id="creatorPinSection" class="readonly-hide" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--glass-border);">
+            <label style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 5px;">
+                🔑 <strong>Kijk-code (Alleen-lezen) instellen voor anderen:</strong>
+            </label>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                <input type="text" id="kijkCodeInput" placeholder="Kijk-code (bv. 654321)" maxlength="6" style="width: 180px;" oninput="updateKijkCode()">
+                <small style="color: var(--text-muted);">Mensen met deze code kunnen alleen de gegevens bekijken.</small>
+            </div>
+        </div>
+
+        <div id="cloudStatus" style="margin-top: 12px; font-size: 13px; color: var(--text-muted); font-weight: 500;">
+            Status: ⚪ Offline modus (Lokaal opgeslagen)
+        </div>
+    </div>
+
+    <!-- 1. INSTELLINGEN & PERSONEN -->
+    <div class="glass-card">
+        <h2>1. Uitstapje & Personen</h2>
+        
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+            <div style="flex: 2; min-width: 200px;">
+                <label for="uitstapTitel" style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 5px;">Titel van het uitstapje (optioneel):</label>
+                <input type="text" id="uitstapTitel" placeholder="bv. Weekend Ardennen" style="width: 100%;" oninput="slaOpEnRefresh()">
+            </div>
+            <div style="flex: 1; min-width: 150px;">
+                <label for="uitstapDatum" style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 5px;">Datum:</label>
+                <input type="date" id="uitstapDatum" style="width: 100%;" onchange="slaOpEnRefresh()">
+            </div>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid var(--glass-border); margin-bottom: 20px;">
+
+        <div class="edit-only-block">
+            <label style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 5px;">Personen toevoegen:</label>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <input type="text" id="persoonNaam" placeholder="Naam persoon" style="flex: 1; min-width: 200px;">
+                <button id="btnVoegPersoonToe" onclick="voegPersoonToe()">Voeg toe</button>
+            </div>
+        </div>
+        <h3>Huidige groep:</h3>
+        <ul id="personenLijst"></ul>
+    </div>
+
+    <!-- 2. UITGAVEN INVOER -->
+    <div class="glass-card edit-only-block">
+        <h2>2. Uitgave toevoegen</h2>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px;">
+            <input type="text" id="itemNaam" placeholder="Wat is er gekocht?" style="flex: 2; min-width: 180px;">
+            <input type="number" id="itemPrijs" step="0.01" placeholder="Prijs (€)" style="flex: 1; min-width: 100px;">
+        </div>
+        
+        <label for="itemBetaler" style="font-size: 14px; color: var(--text-muted);">Wie heeft betaald?</label>
+        <select id="itemBetaler" style="width: 100%; margin-top: 5px; margin-bottom: 15px;"></select>
+
+        <div>
+            <p style="font-size: 14px; color: var(--text-muted);">Verdelen onder wie?</p>
+            <div id="verdeelCheckboxes" class="checkbox-group"></div>
+        </div>
+
+        <button id="btnVoegItemToe" onclick="voegItemToe()" class="btn-success" style="width: 100%; margin-top: 10px;">Voeg uitgave toe</button>
+    </div>
+
+    <!-- 3. INGEVOERDE LIJST -->
+    <div class="glass-card">
+        <h2>3. Ingevoerde Uitgaven</h2>
+        <ul id="uitgavenLijst"></ul>
+        <button id="btnWisAlles" onclick="wisAllesVeilig()" class="btn-danger edit-only-block" style="font-size: 12px; margin-top: 15px; width: 100%; opacity: 0.8;">Wis alle gegevens (Beveiligd)</button>
+    </div>
+
+    <!-- 4. LIVE RESULTATEN -->
+    <div class="glass-card reveal-on-scroll" id="resultatSectie">
+        <h2>4. Wie moet aan wie betalen?</h2>
+        
+        <div class="round-option">
+            <input type="checkbox" id="rondAfCheckbox" onchange="updateLiveBerekening()">
+            <label for="rondAfCheckbox" style="font-weight: 600;">Rond bedragen af op hele euro's (geen kleingeld)</label>
+        </div>
+
+        <div id="resultaten"></div>
+    </div>
+
+    <!-- 5. EXPORTEER OVERZICHT -->
+    <div class="glass-card reveal-on-scroll" id="ticketSectie">
+        <h2>5. Exporteer Overzicht</h2>
+        <div class="no-print" style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+            <button onclick="printTicket()" class="btn-success" style="flex: 1; min-width: 180px;">1. PDF / Printen</button>
+            <button onclick="kopieerTicketTxt()" class="btn-warning" style="flex: 1; min-width: 180px;">2. Kopieer WhatsApp Tekst</button>
+            <button onclick="exporteerNaarAfbeelding()" class="btn-purple" style="flex: 1; min-width: 200px;">3. Download Afbeelding (Social)</button>
+        </div>
+        <div id="ticketPrintArea" class="ticket-container"></div>
+    </div>
+</div>
+
+<script>
+    const GITHUB_TOKEN = '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';
+    let currentPin = "";
+    let currentGistId = null;
+    let kijkCode = "";
+    let isReadOnly = false;
+
+    let syncTimeout = null;
+    let isSyncing = false;
+    let pendingSync = false;
+
+    let personen = [];
+    let uitgaven = [];
+    let actievePersoonEdit = null;
+    let actieveItemEdit = null;
+    let berekendeTransactiesText = [];
+    let berekendeTransactiesRaw = [];
+    let berekendeBalansenText = "";
+
+    window.onload = function() {
+        if (localStorage.getItem('wbw_personen')) personen = JSON.parse(localStorage.getItem('wbw_personen'));
+        if (localStorage.getItem('wbw_uitgaven')) {
+            const rawUitgaven = JSON.parse(localStorage.getItem('wbw_uitgaven'));
+            uitgaven = rawUitgaven.map(u => ({ ...u, prijs: parseFloat(u.prijs) || 0 }));
+        }
+        
+        if (localStorage.getItem('wbw_titel')) {
+            document.getElementById('uitstapTitel').value = localStorage.getItem('wbw_titel');
+        }
+        if (localStorage.getItem('wbw_datum')) {
+            document.getElementById('uitstapDatum').value = localStorage.getItem('wbw_datum');
+        } else {
+            document.getElementById('uitstapDatum').value = new Date().toISOString().split('T')[0];
+        }
+
+        updateAlles();
+        setupScrollAnimations();
+        setupMouseEffects();
+
+        const opgeslagenPin = localStorage.getItem('wbw_pin');
+        if (opgeslagenPin) {
+            document.getElementById('cloudPin').value = opgeslagenPin;
+            laadOfMaakCloudSessie(true);
+        }
+    };
+
+    async function githubApi(endpoint, method = 'GET', data = null) {
+        const options = {
+            method: method,
+            headers: {
+                'Authorization': `Bearer ${GITHUB_TOKEN}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+            }
+        };
+        if (data) {
+            options.body = JSON.stringify(data);
+        }
+        const response = await fetch(`https://api.github.com${endpoint}`, options);
+        if (!response.ok) {
+            throw new Error(`GitHub API Fout (${response.status}): ${response.statusText}`);
+        }
+        return await response.json();
+    }
+
+    async function laadOfMaakCloudSessie(isAutoLoad = false) {
+        const pinInput = document.getElementById('cloudPin').value.trim();
+        const statusDiv = document.getElementById('cloudStatus');
+
+        if (!pinInput) {
+            koppelCloudLos();
+            return;
+        }
+
+        if (!/^\d{6}$/.test(pinInput)) {
+            if (!isAutoLoad) alert("Voer een geldige pincode in van exact 6 cijfers.");
+            return;
+        }
+
+        statusDiv.innerHTML = `Status: ⏳ Bezig met zoeken op GitHub Cloud...`;
+
+        try {
+            const gists = await githubApi('/gists?per_page=100');
+            const filePrefix = `wbw_`;
+            
+            let teLadenGist = null;
+            let gevondenAlsKijkCode = false;
+
+            // 1. Zoek of code overeenkomt met de Beheercode (Gist beschrijving WBW_PIN_XXXXXX)
+            for (let g of gists) {
+                if (g.description === `WBW_PIN_${pinInput}`) {
+                    teLadenGist = g;
+                    gevondenAlsKijkCode = false;
+                    break;
+                }
+            }
+
+            // 2. Zoek of code overeenkomt met een Kijk-code
+            if (!teLadenGist) {
+                for (let g of gists) {
+                    if (g.description && g.description.startsWith('WBW_PIN_')) {
+                        const fullDetail = await githubApi(`/gists/${g.id}`);
+                        const fileKeys = Object.keys(fullDetail.files);
+                        const targetFile = fileKeys.find(f => f.startsWith('wbw_') && f.endsWith('.json'));
+                        if (targetFile && fullDetail.files[targetFile].content) {
+                            try {
+                                const parsed = JSON.parse(fullDetail.files[targetFile].content);
+                                if (parsed.kijkCode === pinInput) {
+                                    teLadenGist = fullDetail;
+                                    gevondenAlsKijkCode = true;
+                                    break;
+                                }
+                            } catch (e) {}
+                        }
+                    }
+                }
+            }
+
+            if (teLadenGist) {
+                currentGistId = teLadenGist.id;
+                currentPin = pinInput;
+                isReadOnly = gevondenAlsKijkCode;
+                localStorage.setItem('wbw_pin', pinInput);
+
+                const gistDetail = teLadenGist.files ? teLadenGist : await githubApi(`/gists/${currentGistId}`);
+                const fileKeys = Object.keys(gistDetail.files);
+                const targetFile = fileKeys.find(f => f.startsWith('wbw_') && f.endsWith('.json'));
+
+                if (targetFile && gistDetail.files[targetFile].content) {
+                    const parsed = JSON.parse(gistDetail.files[targetFile].content);
+                    personen = parsed.personen || [];
+                    uitgaven = (parsed.uitgaven || []).map(u => ({ ...u, prijs: parseFloat(u.prijs) || 0 }));
+                    kijkCode = parsed.kijkCode || "";
+                    
+                    if (parsed.titel !== undefined) document.getElementById('uitstapTitel').value = parsed.titel;
+                    if (parsed.datum !== undefined) document.getElementById('uitstapDatum').value = parsed.datum;
+
+                    document.getElementById('kijkCodeInput').value = kijkCode;
+
+                    localStorage.setItem('wbw_personen', JSON.stringify(personen));
+                    localStorage.setItem('wbw_uitgaven', JSON.stringify(uitgaven));
+                    localStorage.setItem('wbw_titel', document.getElementById('uitstapTitel').value);
+                    localStorage.setItem('wbw_datum', document.getElementById('uitstapDatum').value);
+
+                    updateAlles();
+
+                    if (isReadOnly) {
+                        statusDiv.innerHTML = `Status: 👁️ <strong>Alleen-Lezen Modus Actief</strong> (Kijk-code: ${pinInput})`;
+                    } else {
+                        statusDiv.innerHTML = `Status: 🟢 <strong>Beheerdersmodus Actief</strong> (Code: ${pinInput})`;
+                    }
+                }
+            } else {
+                // Nieuwe sessie aanmaken
+                currentPin = pinInput;
+                isReadOnly = false;
+                kijkCode = "";
+                localStorage.setItem('wbw_pin', pinInput);
+
+                const fileName = `wbw_${pinInput}.json`;
+                const payload = {
+                    description: `WBW_PIN_${pinInput}`,
+                    public: false,
+                    files: {
+                        [fileName]: {
+                            content: JSON.stringify({
+                                personen: personen,
+                                uitgaven: uitgaven,
+                                titel: document.getElementById('uitstapTitel').value,
+                                datum: document.getElementById('uitstapDatum').value,
+                                kijkCode: kijkCode
+                            }, null, 2)
+                        }
+                    }
+                };
+
+                const nieuweGist = await githubApi('/gists', 'POST', payload);
+                currentGistId = nieuweGist.id;
+                updateAlles();
+                statusDiv.innerHTML = `Status: 🟢 <strong>Nieuwe Cloud Sessie Aangemaakt</strong> (Beheercode: ${pinInput})`;
+            }
+        } catch (err) {
+            console.error(err);
+            statusDiv.innerHTML = `Status: 🔴 <strong>Cloud Fout:</strong> ${err.message}`;
+        }
+    }
+
+    function updateKijkCode() {
+        if (isReadOnly) return;
+        kijkCode = document.getElementById('kijkCodeInput').value.trim();
+        planCloudSync();
+    }
+
+    function planCloudSync() {
+        if (!currentGistId || !currentPin || isReadOnly) return;
+
+        const statusDiv = document.getElementById('cloudStatus');
+        statusDiv.innerHTML = `Status: ⏳ Wijzigingen worden opgeslagen...`;
+
+        if (syncTimeout) clearTimeout(syncTimeout);
+        syncTimeout = setTimeout(() => {
+            voerCloudSyncUit();
+        }, 500);
+    }
+
+    async function voerCloudSyncUit() {
+        if (!currentGistId || !currentPin || isReadOnly) return;
+
+        if (isSyncing) {
+            pendingSync = true;
+            return;
+        }
+
+        isSyncing = true;
+        const statusDiv = document.getElementById('cloudStatus');
+
+        try {
+            const fileName = `wbw_${currentPin}.json`;
+            const payload = {
+                files: {
+                    [fileName]: {
+                        content: JSON.stringify({
+                            personen: personen,
+                            uitgaven: uitgaven,
+                            titel: document.getElementById('uitstapTitel').value,
+                            datum: document.getElementById('uitstapDatum').value,
+                            kijkCode: kijkCode
+                        }, null, 2)
+                    }
+                }
+            };
+
+            await githubApi(`/gists/${currentGistId}`, 'PATCH', payload);
+            const nu = new Date().toLocaleTimeString('nl-NL');
+            statusDiv.innerHTML = `Status: 🟢 <strong>Beheerdersmodus Actief</strong> (Code: ${currentPin}) - Bijgewerkt om ${nu}`;
+        } catch (err) {
+            console.error("Sync fout:", err);
+            statusDiv.innerHTML = `Status: ⚠️ <strong>Opslaan Mislukt:</strong> ${err.message}`;
+        } finally {
+            isSyncing = false;
+            if (pendingSync) {
+                pendingSync = false;
+                voerCloudSyncUit();
+            }
+        }
+    }
+
+    function koppelCloudLos() {
+        currentPin = "";
+        currentGistId = null;
+        isReadOnly = false;
+        kijkCode = "";
+        localStorage.removeItem('wbw_pin');
+        document.getElementById('cloudPin').value = "";
+        document.getElementById('kijkCodeInput').value = "";
+        document.getElementById('cloudStatus').innerHTML = "Status: ⚪ Offline modus (Lokaal opgeslagen)";
+        updateAlles();
+    }
+
+    function slaOpEnRefresh() {
+        if (isReadOnly) return;
+        localStorage.setItem('wbw_personen', JSON.stringify(personen));
+        localStorage.setItem('wbw_uitgaven', JSON.stringify(uitgaven));
+        localStorage.setItem('wbw_titel', document.getElementById('uitstapTitel').value);
+        localStorage.setItem('wbw_datum', document.getElementById('uitstapDatum').value);
+        updateAlles();
+        planCloudSync();
+    }
+
+    function updateAlles() {
+        // Toggle UI elements matching read-only mode
+        const editBlocks = document.querySelectorAll('.edit-only-block');
+        editBlocks.forEach(el => {
+            if (isReadOnly) el.classList.add('readonly-hide');
+            else el.classList.remove('readonly-hide');
+        });
+
+        const creatorSec = document.getElementById('creatorPinSection');
+        if (!isReadOnly && currentGistId) {
+            creatorSec.classList.remove('readonly-hide');
+        } else {
+            creatorSec.classList.add('readonly-hide');
+        }
+
+        document.getElementById('uitstapTitel').disabled = isReadOnly;
+        document.getElementById('uitstapDatum').disabled = isReadOnly;
+
+        updatePersonenWeergave();
+        updateUitgavenWeergave();
+        updateInputVelden();
+        updateLiveBerekening();
+    }
+
+    function setupMouseEffects() {
+        const glow = document.getElementById('cursor-glow');
+        window.addEventListener('mousemove', (e) => {
+            glow.style.left = e.clientX + 'px';
+            glow.style.top = e.clientY + 'px';
+
+            document.querySelectorAll('.glass-card').forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+    }
+
+    // --- PERSONEN LOGICA ---
+    function voegPersoonToe() {
+        if (isReadOnly) return;
+        const input = document.getElementById('persoonNaam');
+        const naam = input.value.trim();
+        if (!naam) return alert("Vul een naam in");
+        if (personen.includes(naam)) return alert("Deze persoon bestaat reeds");
+
+        personen.push(naam);
+        input.value = "";
+        slaOpEnRefresh();
+    }
+
+    function verwijderPersoon(naam) {
+        if (isReadOnly) return;
+        if (confirm(`Weet je zeker dat je ${naam} wilt verwijderen? Dit wist ook diens uitgaven.`)) {
+            personen = personen.filter(p => p !== naam);
+            uitgaven = uitgaven.filter(u => u.betaler !== naam && !u.ontvangers.includes(naam));
+            slaOpEnRefresh();
+        }
+    }
+
+    function slaPersoonEditOp(index) {
+        if (isReadOnly) return;
+        const nieuweNaam = document.getElementById(`editPersoonInput-${index}`).value.trim();
+        const oudeNaam = personen[index];
+
+        if (!nieuweNaam) return alert("Naam mag niet leeg zijn");
+        if (personen.includes(nieuweNaam) && nieuweNaam !== oudeNaam) return alert("Naam bestaat al");
+
+        uitgaven.forEach(u => {
+            if (u.betaler === oudeNaam) u.betaler = nieuweNaam;
+            u.ontvangers = u.ontvangers.map(o => o === oudeNaam ? nieuweNaam : o);
+        });
+
+        personen[index] = nieuweNaam;
+        actievePersoonEdit = null;
+        slaOpEnRefresh();
+    }
+
+    function updatePersonenWeergave() {
+        const lijst = document.getElementById('personenLijst');
+        lijst.innerHTML = personen.map((p, i) => {
+            if (actievePersoonEdit === i && !isReadOnly) {
+                return `
+                    <li class="glass-list-item">
+                        <input type="text" id="editPersoonInput-${i}" value="${p}">
+                        <div class="actions">
+                            <button class="btn-success" onclick="slaPersoonEditOp(${i})">Opslaan</button>
+                            <button onclick="actievePersoonEdit = null; updateAlles();">Annuleer</button>
+                        </div>
+                    </li>`;
+            }
+            return `
+                <li class="glass-list-item">
+                    <span><strong>${p}</strong></span>
+                    ${!isReadOnly ? `
+                    <div class="actions">
+                        <button class="btn-warning" onclick="actievePersoonEdit = ${i}; updateAlles();">Bewerk</button>
+                        <button class="btn-danger" onclick="verwijderPersoon('${p}')">Verwijder</button>
+                    </div>` : ''}
+                </li>`;
+        }).join('');
+    }
+
+    function updateInputVelden() {
+        const select = document.getElementById('itemBetaler');
+        select.innerHTML = personen.map(p => `<option value="${p}">${p}</option>`).join('');
+
+        const cbGroup = document.getElementById('verdeelCheckboxes');
+        cbGroup.innerHTML = personen.map(p => `<label><input type="checkbox" value="${p}" checked> ${p}</label>`).join('');
+    }
+
+    // --- UITGAVEN LOGICA ---
+    function voegItemToe() {
+        if (isReadOnly) return;
+        const naam = document.getElementById('itemNaam').value.trim();
+        const prijs = parseFloat(document.getElementById('itemPrijs').value);
+        const betaler = document.getElementById('itemBetaler').value;
+        const checkboxes = document.querySelectorAll('#verdeelCheckboxes input:checked');
+        const ontvangers = Array.from(checkboxes).map(cb => cb.value);
+
+        if (!naam || isNaN(prijs) || prijs <= 0) return alert("Vul geldige gegevens in");
+        if (!betaler) return alert("Voeg eerst personen toe");
+        if (ontvangers.length === 0) return alert("Kies minstens één persoon om mee te delen");
+
+        uitgaven.push({ id: Date.now(), naam, prijs, betaler, ontvangers });
+        document.getElementById('itemNaam').value = "";
+        document.getElementById('itemPrijs').value = "";
+        slaOpEnRefresh();
+    }
+
+    function verwijderItem(id) {
+        if (isReadOnly) return;
+        uitgaven = uitgaven.filter(u => u.id !== id);
+        slaOpEnRefresh();
+    }
+
+    function slaItemEditOp(id) {
+        if (isReadOnly) return;
+        const u = uitgaven.find(x => x.id === id);
+        const nwNaam = document.getElementById(`editItemNaam-${id}`).value.trim();
+        const nwPrijs = parseFloat(document.getElementById(`editItemPrijs-${id}`).value);
+        const nwBetaler = document.getElementById(`editItemBetaler-${id}`).value;
+        const checkboxes = document.querySelectorAll(`.editItemCB-${id}:checked`);
+        const nwOntvangers = Array.from(checkboxes).map(cb => cb.value);
+
+        if (!nwNaam || isNaN(nwPrijs) || nwPrijs <= 0) return alert("Vul geldige gegevens in");
+        if (nwOntvangers.length === 0) return alert("Kies minstens één persoon");
+
+        u.naam = nwNaam;
+        u.prijs = nwPrijs;
+        u.betaler = nwBetaler;
+        u.ontvangers = nwOntvangers;
+
+        actieveItemEdit = null;
+        slaOpEnRefresh();
+    }
+
+    function updateUitgavenWeergave() {
+        const lijst = document.getElementById('uitgavenLijst');
+        lijst.innerHTML = uitgaven.map(u => {
+            const getalPrijs = parseFloat(u.prijs) || 0;
+            if (actieveItemEdit === u.id && !isReadOnly) {
+                return `
+                    <li class="glass-list-item" style="flex-direction: column; align-items: stretch;">
+                        <div class="edit-panel">
+                            <strong>Uitgave Aanpassen</strong><br>
+                            <input type="text" id="editItemNaam-${u.id}" value="${u.naam}" style="width:65%;">
+                            <input type="number" id="editItemPrijs-${u.id}" step="0.01" value="${getalPrijs}" style="width:28%;"><br>
+                            
+                            <label style="margin-top:10px; display:inline-block;">Betaald door:</label>
+                            <select id="editItemBetaler-${u.id}" style="width: 100%;">
+                                ${personen.map(p => `<option value="${p}" ${p === u.betaler ? 'selected' : ''}>${p}</option>`).join('')}
+                            </select><br>
+                            
+                            <label style="margin-top:10px; display:inline-block;">Verdeeld over:</label>
+                            <div class="checkbox-group">
+                                ${personen.map(p => `<label><input type="checkbox" class="editItemCB-${u.id}" value="${p}" ${u.ontvangers.includes(p) ? 'checked' : ''}>${p}</label>`).join('')}
+                            </div>
+                            <div style="display: flex; gap: 5px; margin-top: 5px;">
+                                <button class="btn-success" onclick="slaItemEditOp(${u.id})">Opslaan</button>
+                                <button onclick="actieveItemEdit = null; updateAlles();">Annuleren</button>
+                            </div>
+                        </div>
+                    </li>`;
+            }
+            return `
+                <li class="glass-list-item">
+                    <div class="item-info">
+                        <span><strong>${u.naam}</strong> (€${getalPrijs.toFixed(2)}) - Betaald door: <span style="color: var(--accent-cyan);">${u.betaler}</span></span>
+                        <small style="color: var(--text-muted); display:block; margin-top: 4px;">Verdeeld over: ${u.ontvangers.join(', ')}</small>
+                    </div>
+                    ${!isReadOnly ? `
+                    <div class="actions">
+                        <button class="btn-warning" onclick="actieveItemEdit = ${u.id}; updateAlles();">Bewerk</button>
+                        <button class="btn-danger" onclick="verwijderItem(${u.id})">Verwijder</button>
+                    </div>` : ''}
+                </li>`;
+        }).join('');
+    }
+
+    // --- REALTIME AUTOMATISCHE BEREKENING ---
+    function updateLiveBerekening() {
+        const resDiv = document.getElementById('resultaten');
+        if (personen.length === 0 || uitgaven.length === 0) {
+            resDiv.innerHTML = "<p style='color: var(--text-muted); text-align:center;'>Voeg eerst personen en uitgaven toe om de uitkomst te zien.</p>";
+            document.getElementById('ticketPrintArea').innerText = "Wacht op invoer...";
+            return;
+        }
+
+        let balans = {};
+        personen.forEach(p => balans[p] = 0);
+
+        uitgaven.forEach(u => {
+            const p = parseFloat(u.prijs) || 0;
+            balans[u.betaler] += p;
+            const deelPerPersoon = p / u.ontvangers.length;
+            u.ontvangers.forEach(o => {
+                if (balans[o] !== undefined) balans[o] -= deelPerPersoon;
+            });
+        });
+
+        berekendeBalansenText = "INDIVIDUELE BALANS:\n";
+        for (let p in balans) {
+            let b = Math.round(balans[p] * 100) / 100;
+            let status = b >= 0 ? `krijgt €${b.toFixed(2)}` : `moet betalen €${Math.abs(b).toFixed(2)}`;
+            if (Math.abs(b) < 0.02) status = "staat quitte";
+            berekendeBalansenText += `- ${p.padEnd(12)}: ${status}\n`;
+        }
+
+        let isAfgerond = document.getElementById('rondAfCheckbox') ? document.getElementById('rondAfCheckbox').checked : false;
+
+        let betalers = [], ontvangers = [];
+        for (let p in balans) {
+            let b = Math.round(balans[p] * 100) / 100;
+            if (b < -0.01) betalers.push({ naam: p, bedrag: Math.abs(b) });
+            else if (b > 0.01) ontvangers.push({ naam: p, bedrag: b });
+        }
+
+        let transactiesHTML = [];
+        berekendeTransactiesText = [];
+        berekendeTransactiesRaw = [];
+        let afrondingsDetails = [];
+        
+        let i = 0, j = 0;
+        while (i < betalers.length && j < ontvangers.length) {
+            let b = betalers[i], o = ontvangers[j];
+            if (b.bedrag < 0.01) { i++; continue; }
+            if (o.bedrag < 0.01) { j++; continue; }
+
+            let exactOverboeking = Math.min(b.bedrag, o.bedrag);
+            let teBetalenBedrag = exactOverboeking;
+
+            if (isAfgerond) {
+                teBetalenBedrag = Math.round(exactOverboeking);
+                let versch = teBetalenBedrag - exactOverboeking;
+                if (Math.abs(versch) >= 0.01) {
+                    let richting = versch > 0 ? "meer" : "minder";
+                    afrondingsDetails.push(`• <strong>${b.naam}</strong> betaalt €${Math.abs(versch).toFixed(2)} ${richting} dan exact (€${exactOverboeking.toFixed(2)}).`);
+                }
+            }
+
+            let bedragString = isAfgerond ? `€${teBetalenBedrag}` : `€${teBetalenBedrag.toFixed(2)}`;
+
+            berekendeTransactiesRaw.push({
+                van: b.naam,
+                bedrag: bedragString,
+                aan: o.naam
+            });
+
+            transactiesHTML.push(`
+                <div class="transaction-grid-item">
+                    <span class="tx-payer">${b.naam}</span>
+                    <span class="tx-verb">betaalt</span>
+                    <span class="tx-amount">${bedragString}</span>
+                    <span class="tx-to">aan</span>
+                    <span class="tx-receiver">${o.naam}</span>
+                </div>
+            `);
+
+            berekendeTransactiesText.push(`- ${b.naam} betaalt ${bedragString} aan ${o.naam}`);
+
+            b.bedrag = Math.round((b.bedrag - exactOverboeking) * 100) / 100;
+            o.bedrag = Math.round((o.bedrag - exactOverboeking) * 100) / 100;
+
+            if (b.bedrag < 0.01) i++;
+            if (o.bedrag < 0.01) j++;
+        }
+
+        let htmlResultaat = transactiesHTML.length === 0 
+            ? "<p style='text-align:center;'>Iedereen staat quitte!</p>" 
+            : transactiesHTML.join('');
+        
+        if (isAfgerond && afrondingsDetails.length > 0) {
+            htmlResultaat += `
+                <div class="round-info">
+                    <strong>ℹ️ Afrondingsdetails (Mooie Getallen):</strong><br>
+                    ${afrondingsDetails.join('<br>')}
+                </div>
+            `;
+        }
+
+        resDiv.innerHTML = htmlResultaat;
+        genereerKassaticketLive();
+    }
+
+    function getGekozenTitel() {
+        const v = document.getElementById('uitstapTitel').value.trim();
+        return v ? v.toUpperCase() : "WIE BETAALT WAT";
+    }
+
+    function getGekozenDatum() {
+        const val = document.getElementById('uitstapDatum').value;
+        if (!val) return new Date().toLocaleDateString('nl-NL');
+        const d = new Date(val);
+        return d.toLocaleDateString('nl-NL');
+    }
+
+    function genereerKassaticketLive() {
+        let totaalKosten = uitgaven.reduce((sum, u) => sum + (parseFloat(u.prijs) || 0), 0);
+        let titel = getGekozenTitel();
+        let datumText = getGekozenDatum();
+        
+        let t = "";
+        t += `========================================\n`;
+        t += `          ${titel.padEnd(20)}          \n`;
+        t += `            KASSATICKET              \n`;
+        t += `========================================\n`;
+        t += `Datum: ${datumText}\n`;
+        t += `Aantal personen: ${personen.length} (${personen.join(', ')})\n`;
+        t += `----------------------------------------\n`;
+        t += `INGEVOERDE ITEMS:\n`;
+        
+        uitgaven.forEach((u, idx) => {
+            const p = parseFloat(u.prijs) || 0;
+            let itemRegel = `${(idx+1)}. ${u.naam}`;
+            let prijsRegel = `€${p.toFixed(2)}`;
+            t += `${itemRegel.padEnd(28)}${prijsRegel.padStart(12)}\n`;
+            t += `   Betaald door: ${u.betaler}\n`;
+            t += `   Verdeeld over: ${u.ontvangers.join(', ')}\n`;
+        });
+        
+        t += `----------------------------------------\n`;
+        let totLbl = "TOTAAL BEDRAG:";
+        let totVal = `€${totaalKosten.toFixed(2)}`;
+        t += `${totLbl.padEnd(28)}${totVal.padStart(12)}\n`;
+        t += `========================================\n`;
+        t += `${berekendeBalansenText}`;
+        t += `========================================\n`;
+        t += `EINDVERREKENING (TRANSACTIES):\n`;
+        
+        if (berekendeTransactiesText.length === 0) {
+            t += `Geen transacties nodig, iedereen staat quitte!\n`;
+        } else {
+            berekendeTransactiesText.forEach(tr => {
+                t += `${tr}\n`;
+            });
+        }
+        t += `========================================\n`;
+        t += `        BEDANKT VOOR HET GEBRUIK        \n`;
+        t += `========================================\n`;
+
+        document.getElementById('ticketPrintArea').innerText = t;
+    }
+
+    function exporteerNaarAfbeelding() {
+        if (berekendeTransactiesRaw.length === 0 && uitgaven.length === 0) {
+            return alert("Er zijn geen gegevens om op afbeelding te exporteren.");
+        }
+
+        const totaalKosten = uitgaven.reduce((sum, u) => sum + (parseFloat(u.prijs) || 0), 0);
+        const datumText = getGekozenDatum();
+        const titelText = getGekozenTitel();
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const width = 800;
+        const headerHeight = 180;
+        const itemHeight = 65;
+        const footerHeight = 80;
+        const txCount = Math.max(berekendeTransactiesRaw.length, 1);
+        const height = headerHeight + (txCount * itemHeight) + footerHeight;
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+        bgGrad.addColorStop(0, '#0a0f1d');
+        bgGrad.addColorStop(1, '#070a12');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, width, height);
+
+        const glow1 = ctx.createRadialGradient(100, 100, 10, 100, 100, 300);
+        glow1.addColorStop(0, 'rgba(0, 242, 254, 0.2)');
+        glow1.addColorStop(1, 'transparent');
+        ctx.fillStyle = glow1;
+        ctx.fillRect(0, 0, width, height);
+
+        const glow2 = ctx.createRadialGradient(700, height - 100, 10, 700, height - 100, 300);
+        glow2.addColorStop(0, 'rgba(247, 8, 137, 0.15)');
+        glow2.addColorStop(1, 'transparent');
+        ctx.fillStyle = glow2;
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.fillStyle = '#00f2fe';
+        ctx.font = 'bold 28px Inter, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(titelText, 50, 55);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '600 16px Inter, sans-serif';
+        ctx.fillText(`Datum: ${datumText}  •  ${personen.length} Personen`, 50, 85);
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(550, 30, 200, 70, 14);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.font = '12px Inter, sans-serif';
+        ctx.fillText('TOTAAL UITGEGEVEN', 570, 52);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 22px Inter, sans-serif';
+        ctx.fillText(`€${totaalKosten.toFixed(2)}`, 570, 82);
+
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.beginPath();
+        ctx.moveTo(50, 125);
+        ctx.lineTo(750, 125);
+        ctx.stroke();
+
+        ctx.fillStyle = '#00f2fe';
+        ctx.font = 'bold 15px Inter, sans-serif';
+        ctx.fillText('EINDVERREKENING & TRANSACTIES', 50, 155);
+
+        let startY = 175;
+        if (berekendeTransactiesRaw.length === 0) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.font = '16px Inter, sans-serif';
+            ctx.fillText('Iedereen staat quitte! Geen overboekingen nodig.', 50, startY + 30);
+        } else {
+            berekendeTransactiesRaw.forEach((tx, idx) => {
+                const y = startY + (idx * itemHeight);
+
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.beginPath();
+                ctx.roundRect(50, y, 700, 50, 12);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 16px Inter, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText(tx.van, 70, y + 31);
+
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.font = '13px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('betaalt', 230, y + 30);
+
+                ctx.fillStyle = 'rgba(0, 242, 254, 0.12)';
+                ctx.strokeStyle = 'rgba(0, 242, 254, 0.3)';
+                ctx.beginPath();
+                ctx.roundRect(320, y + 10, 160, 30, 8);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#00f2fe';
+                ctx.font = 'bold 16px Inter, sans-serif';
+                ctx.fillText(tx.bedrag, 400, y + 31);
+
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.font = '13px Inter, sans-serif';
+                ctx.fillText('aan', 530, y + 30);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 16px Inter, sans-serif';
+                ctx.textAlign = 'right';
+                ctx.fillText(tx.aan, 730, y + 31);
+            });
+        }
+
+        ctx.textAlign = 'left';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+        ctx.font = '12px Inter, sans-serif';
+        ctx.fillText(`Aantal items verwerkt: ${uitgaven.length}`, 50, height - 25);
+
+        const filename = titelText.toLowerCase().replace(/[^a-z0-9]/g, '-');
+        const link = document.createElement('a');
+        link.download = `${filename || 'verrekening'}-${datumText}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }
+
+    function setupScrollAnimations() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.15 });
+
+        document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
+    }
+
+    function wisAllesVeilig() {
+        if (isReadOnly) return;
+        if (confirm("Weet je absoluut zeker dat je de hele lijst wilt wissen?")) {
+            const verificatie = prompt("Type RESET in hoofdletters om te bevestigen:");
+            if (verificatie === "RESET") {
+                localStorage.clear();
+                personen = [];
+                uitgaven = [];
+                actievePersoonEdit = null;
+                actieveItemEdit = null;
+                document.getElementById('uitstapTitel').value = "";
+                document.getElementById('uitstapDatum').value = new Date().toISOString().split('T')[0];
+                updateAlles();
+                if (currentGistId && currentPin) {
+                    planCloudSync();
+                }
+                alert("Alle gegevens zijn gewist.");
+            }
+        }
+    }
+
+    function printTicket() { window.print(); }
+
+    function kopieerTicketTxt() {
+        const tekst = document.getElementById('ticketPrintArea').innerText;
+        navigator.clipboard.writeText(tekst).then(() => {
+            alert("Kassaticket gekopieerd! Je kunt het rechtstreeks in WhatsApp plakken.");
+        }).catch(() => {
+            alert("Kopiëren mislukt, selecteer de tekst handmatig.");
+        });
+    }
+</script>
+</body>
+</html>
