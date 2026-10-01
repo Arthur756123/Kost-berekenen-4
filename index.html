@@ -35,6 +35,7 @@
             position: relative;
         }
 
+        /* Dynamic Mouse Cursor Spotlight Glow */
         #cursor-glow {
             position: fixed;
             top: 0;
@@ -50,6 +51,7 @@
             filter: blur(30px);
         }
 
+        /* Animated Liquid Background Blobs */
         .liquid-bg {
             position: fixed;
             top: 0;
@@ -118,6 +120,7 @@
             text-transform: uppercase;
         }
 
+        /* Glassmorphism Card Style */
         .glass-card {
             background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 70%), var(--glass-bg);
             backdrop-filter: blur(20px);
@@ -136,6 +139,7 @@
             transform: translateY(-2px);
         }
 
+        /* Scroll-driven Reveal Animation */
         .reveal-on-scroll {
             opacity: 0;
             transform: translateY(40px) scale(0.96);
@@ -163,6 +167,7 @@
             margin-bottom: 8px;
         }
 
+        /* Input Controls */
         input[type="text"], input[type="number"], input[type="date"], select {
             background: rgba(0, 0, 0, 0.35);
             color: var(--text-main);
@@ -181,9 +186,9 @@
         }
 
         input:disabled, select:disabled, button:disabled {
-            opacity: 0.5;
+            opacity: 0.4 !important;
             cursor: not-allowed !important;
-            filter: grayscale(0.6);
+            border-color: rgba(255, 255, 255, 0.1) !important;
         }
 
         button {
@@ -304,6 +309,7 @@
             transform: scale(1.01);
         }
 
+        /* GRID ALIGNMENT FOR TRANSACTIONS */
         .transaction-grid-item {
             display: grid;
             grid-template-columns: 1.2fr 80px 1.2fr 60px 1.2fr;
@@ -354,6 +360,7 @@
             border-radius: 10px;
         }
 
+        /* Liquid Ticket Container */
         .ticket-container {
             background: rgba(5, 8, 15, 0.85);
             border: 1px dashed rgba(255, 255, 255, 0.2);
@@ -369,8 +376,16 @@
             margin-top: 15px;
         }
 
-        .readonly-hide {
-            display: none !important;
+        .badge-readonly {
+            background: rgba(255, 145, 0, 0.2);
+            color: var(--accent-orange);
+            border: 1px solid var(--accent-orange);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-left: 10px;
         }
 
         @media (max-width: 600px) {
@@ -395,8 +410,10 @@
 </head>
 <body>
 
+<!-- Dynamic Mouse Glow -->
 <div id="cursor-glow"></div>
 
+<!-- Background Blobs -->
 <div class="liquid-bg">
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
@@ -406,38 +423,39 @@
 <div class="container">
     <h1>Wie Betaalt Wat</h1>
 
-    <!-- 0. CLOUD SYNCRONISATIE -->
+    <!-- 0. CLOUD SYNCRONISATIE (GITHUB) -->
     <div class="glass-card">
         <h2>🔒 Cloud Synchronisatie (GitHub)</h2>
         <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
-            Voer je 6-cijferige Beheercode in, of een Kijk-code om gegevens te bekijken.
+            Voer de 6-cijferige pincode in om te verbinden. Als Creator kun je ook een speciale Kijk-code instellen.
         </p>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 15px;">
             <input type="text" id="cloudPin" placeholder="Pincode (6 cijfers)" maxlength="6" style="width: 180px;">
             <button onclick="laadOfMaakCloudSessie()" class="btn-purple">Verbind / Inladen</button>
             <button onclick="koppelCloudLos()" class="btn-warning">Werk Offline</button>
         </div>
 
-        <!-- Creator View-only PIN control -->
-        <div id="creatorPinSection" class="readonly-hide" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--glass-border);">
-            <label style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 5px;">
-                🔑 <strong>Kijk-code (Alleen-lezen) instellen voor anderen:</strong>
+        <!-- KEUSE OM KIJK-CODE IN TE STELLEN (ALLEEN ZICHTBAAR VOOR CREATOR) -->
+        <div id="readOnlyPinSection" style="display: none; background: rgba(0,0,0,0.25); padding: 15px; border-radius: 12px; border: 1px solid var(--glass-border); margin-bottom: 12px;">
+            <label style="font-size: 13px; color: var(--accent-cyan); display: block; margin-bottom: 5px; font-weight: 600;">
+                👁️ Kijk-code voor anderen (Alleen-lezen toegang):
             </label>
             <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                <input type="text" id="kijkCodeInput" placeholder="Kijk-code (bv. 654321)" maxlength="6" style="width: 180px;" oninput="updateKijkCode()">
-                <small style="color: var(--text-muted);">Mensen met deze code kunnen alleen de gegevens bekijken.</small>
+                <input type="text" id="readOnlyPinInput" placeholder="Kijk-code (bv. 654321)" maxlength="6" style="width: 180px;" oninput="slaReadOnlyPinOp()">
+                <span style="font-size: 12px; color: var(--text-muted);">Mensen die deze code invoeren kunnen alles bekijken, maar niks aanpassen.</span>
             </div>
         </div>
 
-        <div id="cloudStatus" style="margin-top: 12px; font-size: 13px; color: var(--text-muted); font-weight: 500;">
+        <div id="cloudStatus" style="font-size: 13px; color: var(--text-muted); font-weight: 500;">
             Status: ⚪ Offline modus (Lokaal opgeslagen)
         </div>
     </div>
 
     <!-- 1. INSTELLINGEN & PERSONEN -->
     <div class="glass-card">
-        <h2>1. Uitstapje & Personen</h2>
+        <h2>1. Uitstapje & Personen <span id="readonlyBadge1"></span></h2>
         
+        <!-- TITEL EN DATUM VAN HET UITSTAPJE -->
         <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
             <div style="flex: 2; min-width: 200px;">
                 <label for="uitstapTitel" style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 5px;">Titel van het uitstapje (optioneel):</label>
@@ -451,20 +469,18 @@
 
         <hr style="border: 0; border-top: 1px solid var(--glass-border); margin-bottom: 20px;">
 
-        <div class="edit-only-block">
-            <label style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 5px;">Personen toevoegen:</label>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <input type="text" id="persoonNaam" placeholder="Naam persoon" style="flex: 1; min-width: 200px;">
-                <button id="btnVoegPersoonToe" onclick="voegPersoonToe()">Voeg toe</button>
-            </div>
+        <label style="font-size: 13px; color: var(--text-muted); display: block; margin-bottom: 5px;">Personen toevoegen:</label>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <input type="text" id="persoonNaam" placeholder="Naam persoon" style="flex: 1; min-width: 200px;">
+            <button id="btnVoegPersoonToe" onclick="voegPersoonToe()">Voeg toe</button>
         </div>
         <h3>Huidige groep:</h3>
         <ul id="personenLijst"></ul>
     </div>
 
     <!-- 2. UITGAVEN INVOER -->
-    <div class="glass-card edit-only-block">
-        <h2>2. Uitgave toevoegen</h2>
+    <div class="glass-card">
+        <h2>2. Uitgave toevoegen <span id="readonlyBadge2"></span></h2>
         <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px;">
             <input type="text" id="itemNaam" placeholder="Wat is er gekocht?" style="flex: 2; min-width: 180px;">
             <input type="number" id="itemPrijs" step="0.01" placeholder="Prijs (€)" style="flex: 1; min-width: 100px;">
@@ -485,10 +501,10 @@
     <div class="glass-card">
         <h2>3. Ingevoerde Uitgaven</h2>
         <ul id="uitgavenLijst"></ul>
-        <button id="btnWisAlles" onclick="wisAllesVeilig()" class="btn-danger edit-only-block" style="font-size: 12px; margin-top: 15px; width: 100%; opacity: 0.8;">Wis alle gegevens (Beveiligd)</button>
+        <button id="btnWisAlles" onclick="wisAllesVeilig()" class="btn-danger" style="font-size: 12px; margin-top: 15px; width: 100%; opacity: 0.8;">Wis alle gegevens (Beveiligd)</button>
     </div>
 
-    <!-- 4. LIVE RESULTATEN -->
+    <!-- 4. LIVE RESULTATEN WITH GRID ALIGNMENT -->
     <div class="glass-card reveal-on-scroll" id="resultatSectie">
         <h2>4. Wie moet aan wie betalen?</h2>
         
@@ -513,10 +529,11 @@
 </div>
 
 <script>
-    const GITHUB_TOKEN = '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';
+    // GitHub Cloud Sync Config
+    const GITHUB_TOKEN = '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';
     let currentPin = "";
+    let readOnlyPin = "";
     let currentGistId = null;
-    let kijkCode = "";
     let isReadOnly = false;
 
     let syncTimeout = null;
@@ -551,6 +568,7 @@
         setupScrollAnimations();
         setupMouseEffects();
 
+        // Herstel eventuele cloud sessie
         const opgeslagenPin = localStorage.getItem('wbw_pin');
         if (opgeslagenPin) {
             document.getElementById('cloudPin').value = opgeslagenPin;
@@ -558,6 +576,7 @@
         }
     };
 
+    // --- GITHUB CLOUD SYNC LOGICA ---
     async function githubApi(endpoint, method = 'GET', data = null) {
         const options = {
             method: method,
@@ -582,7 +601,12 @@
         const statusDiv = document.getElementById('cloudStatus');
 
         if (!pinInput) {
-            koppelCloudLos();
+            currentPin = "";
+            currentGistId = null;
+            isReadOnly = false;
+            localStorage.removeItem('wbw_pin');
+            statusDiv.innerHTML = "Status: ⚪ Offline modus (Lokaal opgeslagen)";
+            pasReadOnlyStatusToe();
             return;
         }
 
@@ -591,65 +615,35 @@
             return;
         }
 
-        statusDiv.innerHTML = `Status: ⏳ Bezig met zoeken op GitHub Cloud...`;
+        statusDiv.innerHTML = `Status: ⏳ Bezig met verbinden met GitHub Cloud voor code <strong>${pinInput}</strong>...`;
 
         try {
             const gists = await githubApi('/gists?per_page=100');
-            const filePrefix = `wbw_`;
-            
-            let teLadenGist = null;
-            let gevondenAlsKijkCode = false;
 
-            // 1. Zoek of code overeenkomt met de Beheercode (Gist beschrijving WBW_PIN_XXXXXX)
-            for (let g of gists) {
-                if (g.description === `WBW_PIN_${pinInput}`) {
-                    teLadenGist = g;
-                    gevondenAlsKijkCode = false;
-                    break;
-                }
-            }
+            // Zoek of de ingegeven code de Creator-code is OF een Kijk-code (Read-Only)
+            let creatorGist = gists.find(g => g.description && g.description.startsWith(`WBW_PIN_${pinInput}`));
+            let viewerGist = gists.find(g => g.description && g.description.includes(`_READ_${pinInput}`));
 
-            // 2. Zoek of code overeenkomt met een Kijk-code
-            if (!teLadenGist) {
-                for (let g of gists) {
-                    if (g.description && g.description.startsWith('WBW_PIN_')) {
-                        const fullDetail = await githubApi(`/gists/${g.id}`);
-                        const fileKeys = Object.keys(fullDetail.files);
-                        const targetFile = fileKeys.find(f => f.startsWith('wbw_') && f.endsWith('.json'));
-                        if (targetFile && fullDetail.files[targetFile].content) {
-                            try {
-                                const parsed = JSON.parse(fullDetail.files[targetFile].content);
-                                if (parsed.kijkCode === pinInput) {
-                                    teLadenGist = fullDetail;
-                                    gevondenAlsKijkCode = true;
-                                    break;
-                                }
-                            } catch (e) {}
-                        }
-                    }
-                }
-            }
-
-            if (teLadenGist) {
-                currentGistId = teLadenGist.id;
+            if (creatorGist) {
+                // INGLOGD ALS CREATOR (EIGENAAR)
+                isReadOnly = false;
+                currentGistId = creatorGist.id;
                 currentPin = pinInput;
-                isReadOnly = gevondenAlsKijkCode;
                 localStorage.setItem('wbw_pin', pinInput);
 
-                const gistDetail = teLadenGist.files ? teLadenGist : await githubApi(`/gists/${currentGistId}`);
-                const fileKeys = Object.keys(gistDetail.files);
-                const targetFile = fileKeys.find(f => f.startsWith('wbw_') && f.endsWith('.json'));
+                const gistDetail = await githubApi(`/gists/${currentGistId}`);
+                const fileName = Object.keys(gistDetail.files)[0];
+                const fileData = gistDetail.files[fileName];
 
-                if (targetFile && gistDetail.files[targetFile].content) {
-                    const parsed = JSON.parse(gistDetail.files[targetFile].content);
+                if (fileData && fileData.content) {
+                    const parsed = JSON.parse(fileData.content);
                     personen = parsed.personen || [];
                     uitgaven = (parsed.uitgaven || []).map(u => ({ ...u, prijs: parseFloat(u.prijs) || 0 }));
-                    kijkCode = parsed.kijkCode || "";
-                    
+                    readOnlyPin = parsed.readOnlyPin || "";
+
                     if (parsed.titel !== undefined) document.getElementById('uitstapTitel').value = parsed.titel;
                     if (parsed.datum !== undefined) document.getElementById('uitstapDatum').value = parsed.datum;
-
-                    document.getElementById('kijkCodeInput').value = kijkCode;
+                    document.getElementById('readOnlyPinInput').value = readOnlyPin;
 
                     localStorage.setItem('wbw_personen', JSON.stringify(personen));
                     localStorage.setItem('wbw_uitgaven', JSON.stringify(uitgaven));
@@ -657,23 +651,44 @@
                     localStorage.setItem('wbw_datum', document.getElementById('uitstapDatum').value);
 
                     updateAlles();
+                    pasReadOnlyStatusToe();
+                    statusDiv.innerHTML = `Status: 🟢 <strong>Creator Modus</strong> (Code: ${pinInput}) - Volledige toegang`;
+                }
+            } else if (viewerGist) {
+                // INGLOGD ALS KIJKER (READ-ONLY)
+                isReadOnly = true;
+                currentGistId = viewerGist.id;
+                currentPin = pinInput;
+                localStorage.setItem('wbw_pin', pinInput);
 
-                    if (isReadOnly) {
-                        statusDiv.innerHTML = `Status: 👁️ <strong>Alleen-Lezen Modus Actief</strong> (Kijk-code: ${pinInput})`;
-                    } else {
-                        statusDiv.innerHTML = `Status: 🟢 <strong>Beheerdersmodus Actief</strong> (Code: ${pinInput})`;
-                    }
+                const gistDetail = await githubApi(`/gists/${currentGistId}`);
+                const fileName = Object.keys(gistDetail.files)[0];
+                const fileData = gistDetail.files[fileName];
+
+                if (fileData && fileData.content) {
+                    const parsed = JSON.parse(fileData.content);
+                    personen = parsed.personen || [];
+                    uitgaven = (parsed.uitgaven || []).map(u => ({ ...u, prijs: parseFloat(u.prijs) || 0 }));
+
+                    if (parsed.titel !== undefined) document.getElementById('uitstapTitel').value = parsed.titel;
+                    if (parsed.datum !== undefined) document.getElementById('uitstapDatum').value = parsed.datum;
+
+                    updateAlles();
+                    pasReadOnlyStatusToe();
+                    statusDiv.innerHTML = `Status: 👁️ <strong>Kijk-modus (Alleen Lezen)</strong> - Geen wijzigingen toegestaan`;
                 }
             } else {
-                // Nieuwe sessie aanmaken
-                currentPin = pinInput;
+                // NIEUWE CREATOR SESSIE AANMAKEN
                 isReadOnly = false;
-                kijkCode = "";
+                currentPin = pinInput;
+                readOnlyPin = "";
                 localStorage.setItem('wbw_pin', pinInput);
 
                 const fileName = `wbw_${pinInput}.json`;
+                const gistDesc = `WBW_PIN_${pinInput}`;
+
                 const payload = {
-                    description: `WBW_PIN_${pinInput}`,
+                    description: gistDesc,
                     public: false,
                     files: {
                         [fileName]: {
@@ -682,7 +697,7 @@
                                 uitgaven: uitgaven,
                                 titel: document.getElementById('uitstapTitel').value,
                                 datum: document.getElementById('uitstapDatum').value,
-                                kijkCode: kijkCode
+                                readOnlyPin: ""
                             }, null, 2)
                         }
                     }
@@ -690,26 +705,57 @@
 
                 const nieuweGist = await githubApi('/gists', 'POST', payload);
                 currentGistId = nieuweGist.id;
-                updateAlles();
-                statusDiv.innerHTML = `Status: 🟢 <strong>Nieuwe Cloud Sessie Aangemaakt</strong> (Beheercode: ${pinInput})`;
+
+                pasReadOnlyStatusToe();
+                statusDiv.innerHTML = `Status: 🟢 <strong>Nieuwe Sessie Aangemaakt (Creator)</strong> (Code: ${pinInput})`;
             }
         } catch (err) {
             console.error(err);
-            statusDiv.innerHTML = `Status: 🔴 <strong>Cloud Fout:</strong> ${err.message}`;
+            statusDiv.innerHTML = `Status: 🔴 <strong>Cloud Fout:</strong> ${err.message} (Lokaal verderwerken)`;
         }
     }
 
-    function updateKijkCode() {
+    function slaReadOnlyPinOp() {
         if (isReadOnly) return;
-        kijkCode = document.getElementById('kijkCodeInput').value.trim();
+        readOnlyPin = document.getElementById('readOnlyPinInput').value.trim();
         planCloudSync();
     }
 
+    function pasReadOnlyStatusToe() {
+        const roSection = document.getElementById('readOnlyPinSection');
+        
+        if (currentGistId && !isReadOnly) {
+            roSection.style.display = 'block';
+        } else {
+            roSection.style.display = 'none';
+        }
+
+        // Disable elementen in read-only modus
+        document.getElementById('uitstapTitel').disabled = isReadOnly;
+        document.getElementById('uitstapDatum').disabled = isReadOnly;
+        document.getElementById('persoonNaam').disabled = isReadOnly;
+        document.getElementById('btnVoegPersoonToe').disabled = isReadOnly;
+        document.getElementById('itemNaam').disabled = isReadOnly;
+        document.getElementById('itemPrijs').disabled = isReadOnly;
+        document.getElementById('itemBetaler').disabled = isReadOnly;
+        document.getElementById('btnVoegItemToe').disabled = isReadOnly;
+        document.getElementById('btnWisAlles').disabled = isReadOnly;
+
+        const badges = [document.getElementById('readonlyBadge1'), document.getElementById('readonlyBadge2')];
+        badges.forEach(b => {
+            if (b) b.innerHTML = isReadOnly ? '<span class="badge-readonly">👁️ Alleen Lezen</span>' : '';
+        });
+
+        // Herteken lijsten zodat knoppen uitgeschakeld worden
+        updatePersonenWeergave();
+        updateUitgavenWeergave();
+    }
+
     function planCloudSync() {
-        if (!currentGistId || !currentPin || isReadOnly) return;
+        if (isReadOnly || !currentGistId || !currentPin) return;
 
         const statusDiv = document.getElementById('cloudStatus');
-        statusDiv.innerHTML = `Status: ⏳ Wijzigingen worden opgeslagen...`;
+        statusDiv.innerHTML = `Status: ⏳ Wijzigingen worden opgeslagen naar cloud...`;
 
         if (syncTimeout) clearTimeout(syncTimeout);
         syncTimeout = setTimeout(() => {
@@ -718,7 +764,7 @@
     }
 
     async function voerCloudSyncUit() {
-        if (!currentGistId || !currentPin || isReadOnly) return;
+        if (isReadOnly || !currentGistId || !currentPin) return;
 
         if (isSyncing) {
             pendingSync = true;
@@ -730,7 +776,10 @@
 
         try {
             const fileName = `wbw_${currentPin}.json`;
+            const gistDesc = readOnlyPin ? `WBW_PIN_${currentPin}_READ_${readOnlyPin}` : `WBW_PIN_${currentPin}`;
+
             const payload = {
+                description: gistDesc,
                 files: {
                     [fileName]: {
                         content: JSON.stringify({
@@ -738,7 +787,7 @@
                             uitgaven: uitgaven,
                             titel: document.getElementById('uitstapTitel').value,
                             datum: document.getElementById('uitstapDatum').value,
-                            kijkCode: kijkCode
+                            readOnlyPin: readOnlyPin
                         }, null, 2)
                     }
                 }
@@ -746,10 +795,10 @@
 
             await githubApi(`/gists/${currentGistId}`, 'PATCH', payload);
             const nu = new Date().toLocaleTimeString('nl-NL');
-            statusDiv.innerHTML = `Status: 🟢 <strong>Beheerdersmodus Actief</strong> (Code: ${currentPin}) - Bijgewerkt om ${nu}`;
+            statusDiv.innerHTML = `Status: 🟢 <strong>Cloud Sync Actief</strong> (Code: ${currentPin}) - Bijgewerkt om ${nu}`;
         } catch (err) {
             console.error("Sync fout:", err);
-            statusDiv.innerHTML = `Status: ⚠️ <strong>Opslaan Mislukt:</strong> ${err.message}`;
+            statusDiv.innerHTML = `Status: ⚠️ <strong>Cloud Opslaan Mislukt:</strong> ${err.message}`;
         } finally {
             isSyncing = false;
             if (pendingSync) {
@@ -761,14 +810,13 @@
 
     function koppelCloudLos() {
         currentPin = "";
+        readOnlyPin = "";
         currentGistId = null;
         isReadOnly = false;
-        kijkCode = "";
         localStorage.removeItem('wbw_pin');
         document.getElementById('cloudPin').value = "";
-        document.getElementById('kijkCodeInput').value = "";
         document.getElementById('cloudStatus').innerHTML = "Status: ⚪ Offline modus (Lokaal opgeslagen)";
-        updateAlles();
+        pasReadOnlyStatusToe();
     }
 
     function slaOpEnRefresh() {
@@ -782,31 +830,16 @@
     }
 
     function updateAlles() {
-        // Toggle UI elements matching read-only mode
-        const editBlocks = document.querySelectorAll('.edit-only-block');
-        editBlocks.forEach(el => {
-            if (isReadOnly) el.classList.add('readonly-hide');
-            else el.classList.remove('readonly-hide');
-        });
-
-        const creatorSec = document.getElementById('creatorPinSection');
-        if (!isReadOnly && currentGistId) {
-            creatorSec.classList.remove('readonly-hide');
-        } else {
-            creatorSec.classList.add('readonly-hide');
-        }
-
-        document.getElementById('uitstapTitel').disabled = isReadOnly;
-        document.getElementById('uitstapDatum').disabled = isReadOnly;
-
         updatePersonenWeergave();
         updateUitgavenWeergave();
         updateInputVelden();
         updateLiveBerekening();
     }
 
+    // --- MOUSE SPOTLIGHT & HOVER EFFECTS ---
     function setupMouseEffects() {
         const glow = document.getElementById('cursor-glow');
+        
         window.addEventListener('mousemove', (e) => {
             glow.style.left = e.clientX + 'px';
             glow.style.top = e.clientY + 'px';
@@ -877,11 +910,10 @@
             return `
                 <li class="glass-list-item">
                     <span><strong>${p}</strong></span>
-                    ${!isReadOnly ? `
                     <div class="actions">
-                        <button class="btn-warning" onclick="actievePersoonEdit = ${i}; updateAlles();">Bewerk</button>
-                        <button class="btn-danger" onclick="verwijderPersoon('${p}')">Verwijder</button>
-                    </div>` : ''}
+                        <button class="btn-warning" ${isReadOnly ? 'disabled' : ''} onclick="actievePersoonEdit = ${i}; updateAlles();">Bewerk</button>
+                        <button class="btn-danger" ${isReadOnly ? 'disabled' : ''} onclick="verwijderPersoon('${p}')">Verwijder</button>
+                    </div>
                 </li>`;
         }).join('');
     }
@@ -891,7 +923,7 @@
         select.innerHTML = personen.map(p => `<option value="${p}">${p}</option>`).join('');
 
         const cbGroup = document.getElementById('verdeelCheckboxes');
-        cbGroup.innerHTML = personen.map(p => `<label><input type="checkbox" value="${p}" checked> ${p}</label>`).join('');
+        cbGroup.innerHTML = personen.map(p => `<label><input type="checkbox" value="${p}" ${isReadOnly ? 'disabled' : ''} checked> ${p}</label>`).join('');
     }
 
     // --- UITGAVEN LOGICA ---
@@ -974,11 +1006,10 @@
                         <span><strong>${u.naam}</strong> (€${getalPrijs.toFixed(2)}) - Betaald door: <span style="color: var(--accent-cyan);">${u.betaler}</span></span>
                         <small style="color: var(--text-muted); display:block; margin-top: 4px;">Verdeeld over: ${u.ontvangers.join(', ')}</small>
                     </div>
-                    ${!isReadOnly ? `
                     <div class="actions">
-                        <button class="btn-warning" onclick="actieveItemEdit = ${u.id}; updateAlles();">Bewerk</button>
-                        <button class="btn-danger" onclick="verwijderItem(${u.id})">Verwijder</button>
-                    </div>` : ''}
+                        <button class="btn-warning" ${isReadOnly ? 'disabled' : ''} onclick="actieveItemEdit = ${u.id}; updateAlles();">Bewerk</button>
+                        <button class="btn-danger" ${isReadOnly ? 'disabled' : ''} onclick="verwijderItem(${u.id})">Verwijder</button>
+                    </div>
                 </li>`;
         }).join('');
     }
@@ -1085,9 +1116,11 @@
         }
 
         resDiv.innerHTML = htmlResultaat;
+
         genereerKassaticketLive();
     }
 
+    // --- GEKOZEN DATUM / TITEL FORMATTEREN ---
     function getGekozenTitel() {
         const v = document.getElementById('uitstapTitel').value.trim();
         return v ? v.toUpperCase() : "WIE BETAALT WAT";
@@ -1100,6 +1133,7 @@
         return d.toLocaleDateString('nl-NL');
     }
 
+    // --- AUTOMATISCH LIVE KASSATICKET ---
     function genereerKassaticketLive() {
         let totaalKosten = uitgaven.reduce((sum, u) => sum + (parseFloat(u.prijs) || 0), 0);
         let titel = getGekozenTitel();
@@ -1147,6 +1181,7 @@
         document.getElementById('ticketPrintArea').innerText = t;
     }
 
+    // --- EXPORTEER NAAR AFBEELDING (CANVAS) ---
     function exporteerNaarAfbeelding() {
         if (berekendeTransactiesRaw.length === 0 && uitgaven.length === 0) {
             return alert("Er zijn geen gegevens om op afbeelding te exporteren.");
@@ -1169,12 +1204,14 @@
         canvas.width = width;
         canvas.height = height;
 
+        // Background Gradient
         const bgGrad = ctx.createLinearGradient(0, 0, width, height);
         bgGrad.addColorStop(0, '#0a0f1d');
         bgGrad.addColorStop(1, '#070a12');
         ctx.fillStyle = bgGrad;
         ctx.fillRect(0, 0, width, height);
 
+        // Soft Radial Glows
         const glow1 = ctx.createRadialGradient(100, 100, 10, 100, 100, 300);
         glow1.addColorStop(0, 'rgba(0, 242, 254, 0.2)');
         glow1.addColorStop(1, 'transparent');
@@ -1187,15 +1224,18 @@
         ctx.fillStyle = glow2;
         ctx.fillRect(0, 0, width, height);
 
+        // Header Custom Title
         ctx.fillStyle = '#00f2fe';
         ctx.font = 'bold 28px Inter, sans-serif';
         ctx.textAlign = 'left';
         ctx.fillText(titelText, 50, 55);
 
+        // Date and Person count
         ctx.fillStyle = '#ffffff';
         ctx.font = '600 16px Inter, sans-serif';
         ctx.fillText(`Datum: ${datumText}  •  ${personen.length} Personen`, 50, 85);
 
+        // Header Total Badge
         ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
         ctx.lineWidth = 1;
@@ -1212,6 +1252,7 @@
         ctx.font = 'bold 22px Inter, sans-serif';
         ctx.fillText(`€${totaalKosten.toFixed(2)}`, 570, 82);
 
+        // Divider
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
         ctx.beginPath();
         ctx.moveTo(50, 125);
@@ -1222,6 +1263,7 @@
         ctx.font = 'bold 15px Inter, sans-serif';
         ctx.fillText('EINDVERREKENING & TRANSACTIES', 50, 155);
 
+        // Render Transactions
         let startY = 175;
         if (berekendeTransactiesRaw.length === 0) {
             ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
@@ -1282,6 +1324,7 @@
         link.click();
     }
 
+    // --- SCROLL ANIMATION OBSERVER ---
     function setupScrollAnimations() {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -1294,6 +1337,7 @@
         document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
     }
 
+    // --- VEILIG WISSEN ---
     function wisAllesVeilig() {
         if (isReadOnly) return;
         if (confirm("Weet je absoluut zeker dat je de hele lijst wilt wissen?")) {
